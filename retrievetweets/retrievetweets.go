@@ -19,8 +19,14 @@ type Tweet struct {
 	ID   string `json:"id_str"`
 }
 
-// Tweets - returned & filtered Tweets
-var Tweets []Tweet
+// RetrievedTweets - returned & filtered Tweets
+type RetrievedTweets struct {
+	DateRange string  `json:"date_range"`
+	Tweets    []Tweet `json:"tweets"`
+}
+
+// ReturnedTweets - instance of returnedTweets to be written out to JSON
+var ReturnedTweets RetrievedTweets
 
 // Twitter API page limit
 const pages = 18
@@ -40,7 +46,6 @@ func respondWithError(err error, w http.ResponseWriter) {
 func filterTweets(retrievedTweets []Tweet, maxIDQuery string) ([]Tweet, string) {
 	var filteredTweets []Tweet
 	for i, t := range retrievedTweets {
-		fmt.Println(maxIDQuery)
 		if i == len(retrievedTweets)-1 {
 			// this is the logic to tell Twitter API where the pages are
 			if maxIDQuery == fmt.Sprintf("&max_id=%v", t.ID) {
@@ -96,10 +101,15 @@ func Retrieve( /*w http.ResponseWriter, r *http.Request*/ ) {
 		var filteredTweets []Tweet
 		filteredTweets, maxIDQuery = filterTweets(retrievedTweets, maxIDQuery)
 
-		Tweets = append(Tweets, filteredTweets...)
+		ReturnedTweets.Tweets = append(ReturnedTweets.Tweets, filteredTweets...)
 		// this is the logic to tell Twitter API where the pages are
 		if maxIDQuery == "end" {
 			break
 		}
+	}
+	returnedTweetsJSON, _ := json.Marshal(ReturnedTweets)
+	err := ioutil.WriteFile("returnedTweets.json", returnedTweetsJSON, 0644)
+	if err != nil {
+
 	}
 }

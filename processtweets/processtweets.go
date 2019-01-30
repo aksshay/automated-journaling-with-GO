@@ -2,12 +2,13 @@ package processtweets
 
 import (
 	regexp "regexp"
+	"strings"
 
 	"github.com/sleepypioneer/automated-journaling-with-GO/retrievetweets"
 )
 
-// tweetText is a tweets components split up
-type tweetText struct {
+// TweetText is a tweets components split up
+type TweetText struct {
 	ID       string
 	Date     string
 	Round    string
@@ -18,10 +19,6 @@ type tweetText struct {
 	Links    []string
 }
 
-const (
-	mockTweet = "#R2D97 #100DaysOfCode started on phase two of the #PoweredByBertelsmann #UdacityDataScholars Nano Degree. Excited t… https://t.co/rfLGHfJaWN"
-)
-
 var (
 	regRound    = regexp.MustCompile(`#R(\S+)`)
 	regDay      = regexp.MustCompile(`#R2D(\S+)`)
@@ -30,16 +27,16 @@ var (
 	// regSymbols = regexp.MustCompile(`@(\S+)`)
 	regMentions = regexp.MustCompile(`@(\S+)`)
 	// SplitTweets is the retrieved tweets split out
-	SplitTweets []tweetText
+	SplitTweets []TweetText
 )
 
 func removeNonPlainText(s string) string {
-	regHTTP.ReplaceAllString(s, "")
-	regRound.ReplaceAllString(s, "")
-	regHashtags.ReplaceAllString(s, "")
-	regMentions.ReplaceAllString(s, "")
+	s = regHTTP.ReplaceAllString(s, "")
+	s = regRound.ReplaceAllString(s, "")
+	s = regHashtags.ReplaceAllString(s, "")
+	s = regMentions.ReplaceAllString(s, "")
 	// regSymbols.ReplaceAllString(s, "")
-	return s
+	return strings.Trim(s, " ")
 }
 
 func extractAsset(s string, re *regexp.Regexp) []string {
@@ -48,7 +45,7 @@ func extractAsset(s string, re *regexp.Regexp) []string {
 
 // SeparateTweetsText separates tweets out
 func SeparateTweetsText(inputTweet retrievetweets.Tweet) {
-	splitTweet := tweetText{
+	splitTweet := TweetText{
 		ID:       inputTweet.ID,
 		Date:     inputTweet.Date,
 		Round:    "",
